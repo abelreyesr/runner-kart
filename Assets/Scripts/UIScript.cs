@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class UIScript : MonoBehaviour
 {
-    [SerializeField] private GameObject _gameOverText;
+    [SerializeField] private GameObject _gameOverScreen;
     [SerializeField] private TextMeshProUGUI _coinText;
     [SerializeField] private TextMeshProUGUI _hpText;
+    [SerializeField] private TextMeshProUGUI _highscoreText;
     [SerializeField] private string _hpSpriteName;
     [SerializeField] private PlayerController _player;
 
@@ -42,6 +43,16 @@ public class UIScript : MonoBehaviour
 
     private void GameOver()
     {
-        _gameOverText.SetActive(true);
+        int highscore = PlayerPrefs.GetInt("highscore", 0);
+        _highscoreText.text ="HIGHSCORE: "+ highscore + "<sprite name=coin>";
+
+        _gameOverScreen.SetActive(true);
+
+        if(_player.Coins > highscore)
+        {
+            PlayerPrefs.SetInt("highscore", _player.Coins);
+
+            _highscoreText.text = $"<color=yellow>NEW HIGHSCORE!!! {_player.Coins}<sprite name=coin>";
+        }
     }
 }

@@ -48,6 +48,7 @@ public class PlayerController : MonoBehaviour
     public bool Stunned => _stunned;
 
     private int _coins = 0;
+    public int Coins => _coins;
 
     public Action<int> OnCoinUpdate;
     public Action<int> OnHpUpdate;
@@ -201,8 +202,9 @@ public class PlayerController : MonoBehaviour
 
     private void TryRestart(InputAction.CallbackContext ctx)
     {
-        if (!_isDead) return; 
-        
+        if (!_isDead) return;
+
+        OnGameOver?.Invoke();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
