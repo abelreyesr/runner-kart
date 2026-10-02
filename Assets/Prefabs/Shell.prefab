@@ -198,9 +198,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   _minSpeed: 0
-  _maxSpeed: 5
-  _minSideSpeed: 6
-  _maxSideSpeed: 12
+  _maxSpeed: 3
+  _minSideSpeed: 5
+  _maxSideSpeed: 10
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
