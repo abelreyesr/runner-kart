@@ -29,8 +29,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputActionReference _restartInputAction;
     [SerializeField] private Rigidbody2D _rb;
     [SerializeField] private Animator _animator;
+    [SerializeField] private AudioSource _audioSource;
     [SerializeField] private SpriteRenderer _sprite;
     [SerializeField] private Collider2D _collider;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip _bumpSfx;
+    [SerializeField] private AudioClip _explosionSfx;
+    [SerializeField] private AudioClip _deathSfx;
+    [SerializeField] private AudioClip _hitSfx;
+    [SerializeField] private AudioClip _coinSfx;
 
     private int _hp;
     private bool _isDead = false;
@@ -130,6 +138,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
+            _audioSource.PlayOneShot(_bumpSfx);
             if(Mathf.Abs(_lastVelX) > _wallBounceMinSpeed) WallBounce();
         }
     }
@@ -138,7 +147,7 @@ public class PlayerController : MonoBehaviour
     {
         _rb.linearVelocity = new Vector2(-_lastVelX * _wallBounceMult, _rb.linearVelocityY);
     }
-
+    
     public void Hit()
     {
         if (_stunned || _isDead) return;
@@ -146,6 +155,8 @@ public class PlayerController : MonoBehaviour
         _hp--;
         OnHpUpdate?.Invoke(_hp);
 
+        _audioSource.PlayOneShot(_hitSfx);
+        _audioSource.PlayOneShot(_explosionSfx);
         _smokeHitParticles.Play();
 
         if(_hp <= 0)
@@ -174,19 +185,28 @@ public class PlayerController : MonoBehaviour
 
         float rate = defaultRate;
         float growth = 2f;
+        float sfxTimer = 0f;
+        int particlesPerSfx = 3;
 
         // que vayan subiendo las explosiones hasta que acabe
         while (rate < defaultRate * 20f)
         {
             rate *= Mathf.Pow(growth, Time.deltaTime);
-
             emission.rateOverTime = rate;
+
+            sfxTimer += rate * Time.deltaTime;
+            while (sfxTimer >= particlesPerSfx)
+            {
+                _audioSource.PlayOneShot(_explosionSfx);
+                sfxTimer -= particlesPerSfx;
+            }
 
             yield return null;
         }
 
         _explosionParticles.Stop();
         _bigExplosionParticles.Play();
+        _audioSource.PlayOneShot(_deathSfx);
         yield return new WaitForSeconds(0.1f);
         _sprite.enabled = false;
         _collider.enabled = false;
@@ -197,6 +217,7 @@ public class PlayerController : MonoBehaviour
     public void PickupCoin()
     {
         _coins++;
+        _audioSource.PlayOneShot(_coinSfx);
         OnCoinUpdate?.Invoke(_coins);
     }
 
